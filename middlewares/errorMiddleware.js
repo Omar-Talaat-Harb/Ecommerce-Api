@@ -1,4 +1,4 @@
-const AppError = require('./appError')
+const AppError = require('./../utils/appError')
 
 const sendErrorDev = (err,res)=>{
   const statusCode = err.statusCode || 500;
@@ -30,9 +30,6 @@ const sendErrorProd =(err,res)=>{
     message:'something went very wrong💥'
   })
 }
-
-
-
 
 
 exports.globalErrorHandler = (err,req,res,next)=>{

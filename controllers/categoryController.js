@@ -1,7 +1,7 @@
 const slugify = require('slugify');
 const {Category} = require('./../db/models');
 const catchAsync = require('./../utils/catchAsync')
-const appError = require('./../utils/appError');
+const AppError = require('./../utils/appError');
 
 
 
@@ -31,6 +31,9 @@ exports.getCategory = catchAsync(async(req,res,next)=>{
 
   const {id} = req.params;
   const category = await Category.findByPk(id);
+  if(!category){
+    return next(new AppError(`there is no category with this id ${id}`,404))
+  }
   res.status(200).json({
     result:category
   })
@@ -44,7 +47,6 @@ exports.createCategory = catchAsync(async(req,res,next)=>{
 
   //SequelizeUniqueConstraintError
   const slug = slugify(name);
-
   const category = await Category.create({
     name,
     slug
@@ -53,7 +55,6 @@ exports.createCategory = catchAsync(async(req,res,next)=>{
     status:'success',
     data:category
   });
-  //  error.errors[0].message
 
 });
 
@@ -66,7 +67,7 @@ exports.updateCategory = catchAsync(async(req,res,next)=>{
   const {name} = req.body;
   const category = await Category.findByPk(id);
   if(!category){
-    return next(new appError(`there is no category with this id ${id}`,404))
+    return next(new AppError(`there is no category with this id ${id}`,404))
   }
   const slug =slugify(name);
   const updatedCategory = await category.update({
@@ -86,7 +87,7 @@ exports.deleteCategory = catchAsync(async(req,res,next)=>{
   const {id} = req.params;
   const category = await Category.destroy({where:{id}});
   if(!category){
-      return next(new appError(`there is no category with this id ${id}`,404))
+    return next(new AppError(`there is no category with this id ${id}`,404))
   }
     res.status(204).send();
 });
