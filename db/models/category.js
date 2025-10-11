@@ -31,6 +31,9 @@ const Category = sequelize.define('category',{
           this.setDataValue('slug',value.toLowerCase());
         }
       },
+      image:{
+        type:DataTypes.STRING
+      },
       createdAt: {
         allowNull: false,
         type: DataTypes.DATE

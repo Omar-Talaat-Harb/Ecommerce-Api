@@ -45,7 +45,6 @@ exports.getCategory = catchAsync(async(req,res,next)=>{
 exports.createCategory = catchAsync(async(req,res,next)=>{
     const {name} = req.body;
 
-  //SequelizeUniqueConstraintError
   const slug = slugify(name);
   const category = await Category.create({
     name,
