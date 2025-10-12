@@ -3,7 +3,7 @@ const validatorMiddleware = require('../../middlewares/validationMiddleware');
 
 
 exports.getCategoryValidator = [  
-check('id').isInt().withMessage('Invalid ID'),
+check('id').isNumeric().withMessage('Invalid ID'),
 validatorMiddleware
 ];
 
@@ -15,11 +15,11 @@ exports.createCategoryValidator =[
 ];
 
 exports.updateCategoryValidator = [  
-check('id').isInt().withMessage('Invalid ID'),
+check('id').isNumeric().withMessage('Invalid ID'),
 validatorMiddleware
 ];
 
 exports.deleteCategoryValidator = [  
-check('id').isInt().withMessage('Invalid ID'),
+check('id').isNumeric().withMessage('Invalid ID'),
 validatorMiddleware
 ];

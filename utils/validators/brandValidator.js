@@ -3,7 +3,7 @@ const validatorMiddleware = require('../../middlewares/validationMiddleware');
 
 
 exports.getBrandValidator = [  
-check('id').isInt().withMessage('Invalid ID'),
+check('id').isNumeric().withMessage('Invalid ID'),
 validatorMiddleware
 ];
 
@@ -15,11 +15,11 @@ exports.createBrandValidator =[
 ];
 
 exports.updateBrandValidator = [  
-check('id').isInt().withMessage('Invalid ID'),
+check('id').isNumeric().withMessage('Invalid ID'),
 validatorMiddleware
 ];
 
 exports.deleteBrandValidator = [  
-check('id').isInt().withMessage('Invalid ID'),
+check('id').isNumeric().withMessage('Invalid ID'),
 validatorMiddleware
 ];
