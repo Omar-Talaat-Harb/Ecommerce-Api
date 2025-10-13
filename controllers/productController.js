@@ -1,4 +1,5 @@
 const slugify = require('slugify');
+const {Op} = require('sequelize')
 const {Product} = require('./../db/models');
 const {Category ,SubCategory ,Brand} = require('./../db/models');
 const catchAsync = require('./../utils/catchAsync')
@@ -6,15 +7,36 @@ const AppError = require('./../utils/appError');
 
 
 
+
 // @DESC get list of Products
 // @route GET /api/v1/products
 // @access pubic
 exports.getAllProducts = catchAsync(async(req,res,next)=>{
-  const page = req.query.page * 1 || 1 ;
-  const limit = req.query.limit * 1 || 5;
-  const offset = (page-1)*limit
+    //search
+    const queryObj = {...req.query};
+    const excludedFields = ['page','sort','limit','fields'];
+    excludedFields.forEach(el => delete queryObj[el]);
+    const where = {};
+    for (let key in queryObj) {
+      const value = queryObj[key];
+      if(!isNaN(value)){ 
+        where [key] = value 
+      }else{
+        where[key] = { [Op.iLike]: `%${queryObj[key]}%` }; // Postgres (case-insensitive)
+      } 
+    }
+    //pagination
+    const page = req.query.page * 1 || 1;
+    const limit = req.query.limit * 1 || 5;
+    const offset = (page - 1) * limit;
+
+    const sort = req.query.sort || 'createdAt';
+
   const {rows , count} = await Product.findAndCountAll({
-    offset,limit,include:[
+    where,
+    offset,limit,
+    order:[[sort, 'DESC']]
+    ,include:[
     {
       model:SubCategory,
       attributes:['id','name'],
@@ -26,7 +48,7 @@ exports.getAllProducts = catchAsync(async(req,res,next)=>{
     }
   ]
   });
-  const totalPages = Math.ceil(count/limit);
+  // const totalPages = Math.ceil(count/limit);
   res.status(200).json({
     currentPage:page,
     results:rows.length,
