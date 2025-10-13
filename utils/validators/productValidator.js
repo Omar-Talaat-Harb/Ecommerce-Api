@@ -50,12 +50,13 @@ exports.createProductValidator = [
   check('categoryId')
     .notEmpty().withMessage('Product must belong to category')
     .isNumeric().withMessage('invalid ID'),
-  check('subCategoryId')
+  check('subCategories')
     .optional()
-    .isNumeric().withMessage('invalid Id'),
+    .isArray().withMessage('subCategories has to be send in array form')
+    .isNumeric().withMessage('SubCategories has to be numbers'),
   check('brandId')
     .optional()
-    .isNumeric().withMessage('invalid Id'),
+    .isNumeric().withMessage('invalid BrandId'),
     validatorMiddleware
 ];
 

@@ -61,13 +61,6 @@ module.exports = {
           key:"id"
         }
       },
-      subCategoryId:{
-        type:Sequelize.INTEGER,
-        references:{
-          model:"subCategories",
-          key:"id"
-        }
-      },
       brandId:{
         type:Sequelize.INTEGER,
         references:{

@@ -103,13 +103,6 @@ const Product = sequelize.define('product',{
           notEmpty:'Product Category cannot be empty'          
         }
       },
-      subCategoryId:{
-        type:DataTypes.INTEGER,
-        references:{
-          model:"subCategories",
-          key:"id"
-        }
-      },
       brandId:{
         type:DataTypes.INTEGER,
         references:{

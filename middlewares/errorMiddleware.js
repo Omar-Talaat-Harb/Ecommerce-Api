@@ -5,6 +5,8 @@ const sendErrorDev = (err,res)=>{
   const status = err.status ||'error';
   const message = err.message;
   const stack = err.stack;
+  // console.log(err);
+  
   
   res.status(statusCode).json({
     status,
@@ -40,7 +42,7 @@ if (err.name === 'SequelizeValidationError') {
   }else if (err.name === 'SequelizeUniqueConstraintError'){
     err = new AppError(err.errors[0].message, 400);
   }else if (err.name === 'SequelizeDatabaseError') {
-    err = new AppError('Invalid data input', 400);
+    err = new AppError(`${err}`, 400);
   }else if (err.name === 'SequelizeNotNullConstraintError') {
     err = new AppError(`${err.errors[0].path} cannot be null`, 400);
   }

@@ -14,10 +14,17 @@ exports.getAllProducts = catchAsync(async(req,res,next)=>{
   const limit = req.query.limit * 1 || 5;
   const offset = (page-1)*limit
   const {rows , count} = await Product.findAndCountAll({
-    offset,limit,include:{
+    offset,limit,include:[
+    {
+      model:SubCategory,
+      attributes:['id','name'],
+      through:{attributes:[]},
+    }
+    ,{
       model:Category,
       attributes:['name']
     }
+  ]
   });
   const totalPages = Math.ceil(count/limit);
   res.status(200).json({
@@ -34,10 +41,17 @@ exports.getAllProducts = catchAsync(async(req,res,next)=>{
 exports.getProduct = catchAsync(async(req,res,next)=>{
 
   const {id} = req.params;
-  const product = await Product.findOne({where:{id} ,include:{
+  const product = await Product.findOne({where:{id} ,include:[
+    {
+      model:SubCategory,
+      attributes:['id','name'],
+      through:{attributes:[]},
+    }
+    ,{
       model:Category,
       attributes:['name']
-    }});
+    }
+  ]});
   if(!product){
     return next(new AppError(`there is no product with this id ${id}`,404))
   }
@@ -50,32 +64,43 @@ exports.getProduct = catchAsync(async(req,res,next)=>{
 // @route POSt /api/v1/products
 // @access private
 exports.createProduct = catchAsync(async(req,res,next)=>{
-  req.body.slug = slugify(req.body.title);
-  const category = await Category.findByPk(req.body.categoryId);
-  if(!category){
-    return next(new AppError(`there is no category with this id ${req.body.categoryId}`,404));
+const { subCategories, ...productData } = req.body;
+  productData.slug = slugify(productData.title);
+  //check if the category is valid
+  const categoryId = productData.categoryId;
+  const prodCategory = await Category.findByPk(categoryId);
+  if(!prodCategory){
+    return next(new AppError(`there is no category with this id ${categoryId}`,404))
   }
-  if(req.body.subCategoryId){
-    const subcategory = await SubCategory.findOne({where:{
-      id:req.body.subCategoryId , 
-      categoryId:req.body.categoryId}
-    });
-    if(!subcategory){
-    return next(new AppError(`there is no subcategory with this id ${req.body.subCategoryId}`,404));
+  //check for subCategories if exists
+  if (subCategories && subCategories.length > 0){
+    const foundSubs = await SubCategory.findAll({where:{id:subCategories}});
+    if(foundSubs.length !== subCategories.length){
+      const missingIds = subCategories.filter(id=>!foundSubs.find(sub => sub.id === id))
+      return next(new AppError(`some subCategories not found ${missingIds}`,400))
+    }
+    const invalidSubs = foundSubs.filter(sub=>sub.categoryId !== categoryId)
+    if(invalidSubs.length> 0 ){
+      return next(new AppError(`these subCategories:${invalidSubs.map(s=>s.id)} don't belong to this category`,400));
     }
   }
-  if(req.body.brandId){
-    const brand = await Brand.findByPk(req.body.brandId);
+  if(productData.brandId){
+    const brand = await Brand.findByPk(productData.brandId);
     if(!brand){
-    return next(new AppError(`there is no brand with this id ${req.body.brandId}`,404));
+    return next(new AppError(`there is no brand with this id ${productData.brandId}`,404));
     }
   }
 
-  const product = await Product.create(req.body);
+  const product = await Product.create(productData);
+
+  //
+  if(subCategories && subCategories.length > 0 ){
+    await product.addSubCategories(subCategories);
+  }
   res.status(201).json({
-    status:'success',
-    data:product
-  });
+    message:'product created successfully',
+    product
+  })
 
 });
 

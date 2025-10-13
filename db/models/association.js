@@ -7,8 +7,19 @@ const {Category , SubCategory , Brand ,Product} = db;
   Category.hasMany(Product,{foreignKey:'categoryId'});
   Product.belongsTo(Category,{foreignKey:'categoryId'});
 
-  SubCategory.hasMany(Product,{foreignKey:'subCategoryId'});
-  Product.belongsTo(SubCategory,{foreignKey:'subCategoryId'});
+  Product.belongsToMany(SubCategory,{
+    through : 'productSubCategories',
+    foreignKey : 'productId',
+    otherKey: 'subCategoryId',
+    onDelete: 'CASCADE'
+  });
+
+  SubCategory.belongsToMany(Product,{
+  through : 'productSubCategories',
+  foreignKey : 'subCategoryId',
+  otherKey: 'productId',
+  onDelete: 'CASCADE'
+});
 
   Brand.hasMany(Product,{foreignKey:'brandId'});
   Product.belongsTo(Brand,{foreignKey:'brandId'});
