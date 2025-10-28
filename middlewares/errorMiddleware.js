@@ -5,8 +5,6 @@ const sendErrorDev = (err,res)=>{
   const status = err.status ||'error';
   const message = err.message;
   const stack = err.stack;
-  console.log(err);
-  
   
   res.status(statusCode).json({
     status,
@@ -27,7 +25,6 @@ const sendErrorProd =(err,res)=>{
       message,
   })
   }
-  console.log(err.name , err.message , stack);
   res.status(500).json({
     status:'error',
     message:'something went very wrong💥'

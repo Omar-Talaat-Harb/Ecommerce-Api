@@ -7,11 +7,13 @@ const router = express.Router();
 
 router.route('/')
 .get(productController.getAllProducts)
-.post(productValidator.createProductValidator,productController.createProduct);
+.post(productController.uploadProductsImages,productController.resizeProductImages,
+  productValidator.createProductValidator,productController.createProduct);
 
 router.route('/:id')
 .get(productValidator.getProductValidator,productController.getProduct)
-.patch(productValidator.updateProductValidator,productController.updateProduct)
+.patch(productController.uploadProductsImages,productController.resizeProductImages,
+  productValidator.updateProductValidator,productController.updateProduct)
 .delete(productValidator.deleteProductValidator,productController.deleteProduct);
 
 

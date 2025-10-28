@@ -1,9 +1,28 @@
 const slugify = require('slugify');
 const {Category} = require('./../db/models');
+const sharp = require('sharp');
+
 const catchAsync = require('./../utils/catchAsync')
 const AppError = require('./../utils/appError');
+const { uploadSingleImage } = require('./../middlewares/uploadImageMiddleware')
 
-
+// upload single image
+exports.uploadCategoryImage = uploadSingleImage('image');
+//image processing
+exports.resizeImage = catchAsync(async (req,res,next)=>{
+  if(req.file){
+  const imageFormat = 'jpeg';
+  const filename = `category-${Date.now()}-${req.file.originalname.split('.')[0]}.${imageFormat}`;
+  await sharp(req.file.buffer)
+    .resize(600,600)
+    .toFormat(imageFormat)
+    .jpeg({quality:90})
+    .toFile(`uploads/categories/${filename}`);
+  //save image into our dp
+  req.body.image = filename;
+  }
+  next();
+});  
 
 // @DESC get list of categories
 // @route GET /api/v1/categories
@@ -43,13 +62,12 @@ exports.getCategory = catchAsync(async(req,res,next)=>{
 // @route POSt /api/v1/categories
 // @access private
 exports.createCategory = catchAsync(async(req,res,next)=>{
-    const {name} = req.body;
-
-  const slug = slugify(name);
-  const category = await Category.create({
-    name,
-    slug
-  });
+    // const {name} = req.body;
+  // console.log(req.file);
+  
+  const slug = slugify(req.body.name);
+  req.body.slug = slug
+  const category = await Category.create(req.body);
   res.status(201).json({
     status:'success',
     data:category
@@ -63,16 +81,14 @@ exports.createCategory = catchAsync(async(req,res,next)=>{
 // @access private
 exports.updateCategory = catchAsync(async(req,res,next)=>{
   const {id} = req.params;
-  const {name} = req.body;
   const category = await Category.findByPk(id);
   if(!category){
     return next(new AppError(`there is no category with this id ${id}`,404))
   }
-  const slug =slugify(name);
-  const updatedCategory = await category.update({
-    name,
-    slug
-  });
+  if(req.body.name){
+      req.body.slug = slugify(req.body.name);
+  }
+  const updatedCategory = await category.update(req.body);
   res.status(201).json({
     result:updatedCategory
   })

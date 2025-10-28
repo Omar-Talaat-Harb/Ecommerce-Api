@@ -13,7 +13,8 @@ const productRoutes = require('./routes/productRoutes');
 const app = express();
 
 //middlewares
-app.use(express.json()); 
+app.use(express.json());
+app.use(express.static(('uploads')))
 
 if(process.env.NODE_ENV ==='development'){
   app.use(morgan('dev'))

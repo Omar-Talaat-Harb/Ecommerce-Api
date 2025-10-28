@@ -33,7 +33,16 @@ const Brand = sequelize.define('brand',{
         }
       },
       image: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
+        get(){
+          const image = this.getDataValue('image')
+          //return set image base url + image name
+          if(image){
+            const imageUrl = `${process.env.BASE_URL}/brands/${image}`
+            console.log(imageUrl);
+            return imageUrl
+          }
+        }
       },
       createdAt: {
         allowNull: false,

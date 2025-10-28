@@ -1,10 +1,28 @@
 const slugify = require('slugify');
+const sharp = require('sharp');
 const {Brand} = require('./../db/models');
 const catchAsync = require('./../utils/catchAsync')
 const AppError = require('./../utils/appError');
+const { uploadSingleImage } = require('./../middlewares/uploadImageMiddleware')
 
 
-
+// upload single image
+exports.uploadBrandImage = uploadSingleImage('image');
+//image processing
+exports.resizeImage = catchAsync(async (req,res,next)=>{
+  const imageFormat = 'jpeg';
+  if(req.file){
+  const filename = `brand-${Date.now()}-${req.file.originalname.split('.')[0]}.${imageFormat}`;
+  await sharp(req.file.buffer)
+    .resize(600,600)
+    .toFormat(imageFormat)
+    .jpeg({quality:90})
+    .toFile(`uploads/brands/${filename}`);
+  //save image into our dp
+  req.body.image = filename;
+  }
+  next();
+}); 
 
 // @DESC get list of brands
 // @route GET /api/v1/brands
@@ -49,12 +67,8 @@ exports.getBrand = catchAsync(async(req,res,next)=>{
 // @route POSt /api/v1/brands
 // @access private
 exports.createBrand= catchAsync(async(req,res,next)=>{
-  const {name} = req.body;
-  const slug = slugify(name);
-  const brand = await Brand.create({
-    name,
-    slug,
-  });
+req.body.slug = slugify(req.body.name);
+  const brand = await Brand.create(req.body);
   res.status(201).json({
     status:'success',
     data:brand
@@ -64,18 +78,17 @@ exports.createBrand= catchAsync(async(req,res,next)=>{
 // @DESC update specific Brand
 // @route PATCH /api/v1/brands/:id
 // @access private
+
 exports.updateBrand = catchAsync(async(req,res,next)=>{
   const {id} = req.params;
-  const {name} = req.body;
   const brand = await Brand.findByPk(id);
   if(!brand){
-    return next(new AppError(`there is no Brand with this id ${id}`,404));
+    return next(new AppError(`there is no brand with this id ${id}`,404))
   }
-  const slug =slugify(name);
-  const updatedBrand = await brand.update({
-    name,
-    slug,
-  });
+  if(req.body.name){
+      req.body.slug = slugify(req.body.name);
+  }
+  const updatedBrand = await brand.update(req.body);
   res.status(201).json({
     result:updatedBrand
   })

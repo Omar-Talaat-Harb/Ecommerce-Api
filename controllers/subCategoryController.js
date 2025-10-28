@@ -90,17 +90,14 @@ exports.createSubCategory = catchAsync(async(req,res,next)=>{
 // @access private
 exports.updateSubCategory = catchAsync(async(req,res,next)=>{
   const {id} = req.params;
-  const {name , categoryId} = req.body;
   const subcategory = await SubCategory.findByPk(id);
   if(!subcategory){
     return next(new AppError(`there is no subcategory with this id ${id}`,404));
   }
-  const slug =slugify(name);
-  const updatedSubCategory = await subcategory.update({
-    name,
-    slug,
-    categoryId
-  });
+  if(req.body.name){
+      req.body.slug = slugify(req.body.name);
+  }
+  const updatedSubCategory = await subcategory.update(req.body);
   res.status(201).json({
     result:updatedSubCategory
   })

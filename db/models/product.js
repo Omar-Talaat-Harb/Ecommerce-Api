@@ -73,10 +73,26 @@ const Product = sequelize.define('product',{
         validate:{
           notNull:'Product Image cannot be null',
           notEmpty:'Product Image cannot be empty'          
+        },
+        get(){
+          const image = this.getDataValue('image_cover')
+          //return set image base url + image name
+          if(image){
+            const imageUrl = `${process.env.BASE_URL}/products/${image}`
+            return imageUrl
+          }
         }
       },
       images:{
-        type:DataTypes.ARRAY(DataTypes.STRING)
+        type:DataTypes.ARRAY(DataTypes.STRING),
+        get(){
+          const images = this.getDataValue('images')
+          //return set image base url + image name
+          if(images){
+            const imagesUrl = images.map(img=>`${process.env.BASE_URL}/products/${img}`)
+            return imagesUrl
+          }
+        }
       },
       ratingsAverage:{
         type:DataTypes.DECIMAL(3,2),

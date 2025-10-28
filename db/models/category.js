@@ -9,13 +9,13 @@ const Category = sequelize.define('category',{
         primaryKey: true,
         type: DataTypes.INTEGER
       },
-      name: {
+  name: {
         type: DataTypes.STRING,
         allowNull:false,
         unique:{
           msg:'this category already exists '
         },
-        validate:{
+  validate:{
           notNull:{
             msg:`category can't be null`
           },
@@ -25,20 +25,29 @@ const Category = sequelize.define('category',{
           }
         }
       },
-      slug: {
+  slug: {
         type: DataTypes.STRING,
         set(value){
           this.setDataValue('slug',value.toLowerCase());
         }
       },
-      image:{
-        type:DataTypes.STRING
+  image:{
+        type:DataTypes.STRING,
+        get(){
+          const image = this.getDataValue('image')
+          //return set image base url + image name
+          if(image){
+            const imageUrl = `${process.env.BASE_URL}/categories/${image}`
+            console.log(imageUrl);
+            return imageUrl
+          }
+        }
       },
-      createdAt: {
+  createdAt: {
         allowNull: false,
         type: DataTypes.DATE
       },
-      updatedAt: {
+  updatedAt: {
         allowNull: false,
         type: DataTypes.DATE
       }

@@ -7,11 +7,13 @@ const router = express.Router();
 
 router.route('/')
 .get(brandController.getAllBrands)
-.post(brandValidator.createBrandValidator,brandController.createBrand);
+.post(brandController.uploadBrandImage,brandController.resizeImage,
+  brandValidator.createBrandValidator,brandController.createBrand);
 
 router.route('/:id')
 .get(brandValidator.getBrandValidator,brandController.getBrand)
-.patch(brandValidator.updateBrandValidator,brandController.updateBrand)
+.patch(brandController.uploadBrandImage,brandController.resizeImage,
+  brandValidator.updateBrandValidator,brandController.updateBrand)
 .delete(brandValidator.deleteBrandValidator,brandController.deleteBrand);
 
 

@@ -1,10 +1,69 @@
 const slugify = require('slugify');
 const {Op} = require('sequelize')
-const {Product} = require('./../db/models');
-const {Category ,SubCategory ,Brand} = require('./../db/models');
+const sharp = require('sharp');
+const {Product,Category ,SubCategory ,Brand} = require('./../db/models');
 const catchAsync = require('./../utils/catchAsync')
 const AppError = require('./../utils/appError');
+const {uploadMixOfImages} = require('./../middlewares/uploadImageMiddleware');
 
+
+exports.uploadProductsImages = uploadMixOfImages([
+  {
+    name: 'image_cover' ,
+    maxCount: 1
+  },
+  {
+    name:'images',
+    maxCount:5
+  }
+]);
+
+exports.resizeProductImages = catchAsync(async (req,res,next)=>{
+  //1-image processing for image cover
+  if(req.files.image_cover){
+    const imageFormat = 'jpeg';
+    const imageCoverFilename = `Product-${Date.now()}-${req.files.image_cover[0].originalname.split('.')[0]}-cover.${imageFormat}`;
+    await sharp(req.files.image_cover[0].buffer)
+      .resize(2000,1333)
+      .toFormat(imageFormat)
+      .jpeg({quality:90})
+      .toFile(`uploads/products/${imageCoverFilename}`);
+    //save image into our dp
+    req.body.image_cover = imageCoverFilename;
+  }
+  //2 image processing for images
+  let images = [];
+  if(req.files.images){
+    for(i=0;i<req.files.images.length;i++){
+        const imageFormat = 'jpeg';
+        const imagesFiles = `product-${Date.now()}-${req.files.images[i].originalname.split('.')[0]}.${imageFormat}`;
+        await sharp(req.files.images[i].buffer)
+          .resize(2000,1333)
+          .toFormat(imageFormat)
+          .jpeg({quality:90})
+          .toFile(`uploads/products/${imagesFiles}`);
+        //save image into our dp
+        images.push(imagesFiles);
+    }
+    req.body.images = images;
+
+    //using map
+    //it takes longer time than the for loop
+  //   req.body.images = [];
+  //   await Promise.all (req.files.images.map(async (img,index)=>{
+  //     const imageName = `product-${Date.now()}-${img.originalname.split('.')[0]}-${index + 1}.jpeg`;
+  //       await sharp(img.buffer)
+  //         .resize(2000,1333)
+  //         .toFormat('jpeg')
+  //         .jpeg({quality:90})
+  //         .toFile(`uploads/products/${imageName}`);
+  //         //save to database
+  //         req.body.images.push(imageName)
+  //   })
+  // );
+  }
+  next();
+});
 
 
 
