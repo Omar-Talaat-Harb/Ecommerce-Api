@@ -38,7 +38,6 @@ const Category = sequelize.define('category',{
           //return set image base url + image name
           if(image){
             const imageUrl = `${process.env.BASE_URL}/categories/${image}`
-            console.log(imageUrl);
             return imageUrl
           }
         }

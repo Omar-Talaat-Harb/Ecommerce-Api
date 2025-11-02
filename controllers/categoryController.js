@@ -36,6 +36,7 @@ exports.getAllCategories = catchAsync(async(req,res,next)=>{
   });
   const totalPages = Math.ceil(count/limit);
   res.status(200).json({
+    totalPages,
     currentPage:page,
     results:rows.length,
     data:rows

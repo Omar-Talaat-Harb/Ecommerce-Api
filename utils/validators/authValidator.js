@@ -29,7 +29,7 @@ exports.loginValidator=[
     .withMessage('Email is required')
     .isEmail()
     .withMessage('Invalid email address'),
-  check  ('password')
+  check('password')
     .notEmpty()
     .withMessage('Password is required')
     .isLength({min:6})

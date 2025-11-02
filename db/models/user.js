@@ -69,6 +69,18 @@ const User = sequelize.define('user',{
           }
         }
       },
+      passwordChangedAt :{
+        type:DataTypes.DATE
+      },
+      passwordResetCode:{
+        type:DataTypes.STRING
+      },
+      passwordResetExpires:{
+        type:DataTypes.DATE
+      },
+      passwordResetVerified:{
+        type:DataTypes.BOOLEAN
+      },
       role: {
         type: DataTypes.ENUM("user","admin"),
         defaultValue:"user",
@@ -85,6 +97,7 @@ const User = sequelize.define('user',{
     beforeUpdate: async (user, options) => {
       if (user.changed('password')) {
         const password = user.password; 
+        user.passwordChangedAt = new Date();
         user.setDataValue('password', await bcrypt.hash(password , 10));
         if (options && options.validate) {
           options.validate = false;

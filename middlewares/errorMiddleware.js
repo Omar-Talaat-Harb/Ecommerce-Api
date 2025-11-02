@@ -3,11 +3,13 @@ const AppError = require('./../utils/appError')
 const sendErrorDev = (err,res)=>{
   const statusCode = err.statusCode || 500;
   const status = err.status ||'error';
+  const name = err.name || null;
   const message = err.message;
   const stack = err.stack;
   
   res.status(statusCode).json({
     status,
+    name,
     message,
     stack
   })
@@ -42,6 +44,10 @@ if (err.name === 'SequelizeValidationError') {
     err = new AppError(`${err}`, 400);
   }else if (err.name === 'SequelizeNotNullConstraintError') {
     err = new AppError(`${err.errors[0].path} cannot be null`, 400);
+  }else if (err.name === 'JsonWebTokenError'){
+    err = new AppError('invalid token , please login again..',401);
+  }else if (err.name === 'TokenExpiredError'){
+    err = new AppError('Expired token , please login again.',401)
   }
 
   if(process.env.NODE_ENV === 'development'){

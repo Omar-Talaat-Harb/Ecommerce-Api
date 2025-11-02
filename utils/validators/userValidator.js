@@ -66,3 +66,19 @@ exports.deleteUserValidator = [
 check('id').isNumeric().withMessage('Invalid ID'),
 validatorMiddleware
 ];
+
+exports.updateLoggedUserValidator = [  
+  check('name')
+    .optional()
+    .isLength({min:2,max:32}).withMessage('User must be between 3 and 32 characters'),
+  check('email')
+    .optional()
+    .isEmail().withMessage('invalid email address')
+    .normalizeEmail({
+      gmail_remove_dots: false, 
+      gmail_remove_subaddress: false,
+      all_lowercase: true, 
+    }), 
+  check('phone').optional().isMobilePhone(["ar-EG","ar-SA"]).withMessage('Invalid phone number only accept EG and SA phone numbers')
+,validatorMiddleware
+];
