@@ -8,6 +8,9 @@ const categoryRoutes = require('./routes/categoryRoutes');
 const subCategoryRoutes = require('./routes/subCategoryRoutes');
 const brandRoutes = require('./routes/brandRoutes');
 const productRoutes = require('./routes/productRoutes');
+const userRoutes = require('./routes/userRoutes');
+const authRoutes = require('./routes/authRoutes');
+
 
 //express app
 const app = express();
@@ -25,6 +28,8 @@ app.use('/api/v1/categories',categoryRoutes);
 app.use('/api/v1/subcategories',subCategoryRoutes);
 app.use('/api/v1/brands',brandRoutes);
 app.use('/api/v1/products',productRoutes);
+app.use('/api/v1/users',userRoutes);
+app.use('/api/v1/auth',authRoutes);
 
 app.all("/{*splat}",(req,res,next)=>{
   next(new AppError(`can't find this route: ${req.originalUrl}`,404))
